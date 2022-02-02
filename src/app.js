@@ -88,6 +88,29 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/logout", async (req, res) => {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    res.status(422).send("Nenhum token de autenticação foi enviado!");
+    return;
+  }
+
+  const sessionsCollection = db.collection("sessions");
+
+  const session = await sessionsCollection.findOne({ token });
+
+  if (!session) {
+    res.status(404).send("Nenhuma sessão com esse token foi encontrada");
+    return;
+  }
+
+  await sessionsCollection.deleteOne({ _id: session._id });
+
+  res.sendStatus(200);
+});
+
 app.listen(5000, () => {
   console.log("Rodando em http://localhost:5000");
 });
