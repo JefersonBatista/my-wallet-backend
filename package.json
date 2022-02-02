@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "npx nodemon index.js"
+    "start": "npx nodemon src/app.js"
   },
   "repository": {
     "type": "git",
@@ -21,9 +21,11 @@
     "eslint": "^8.8.0"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "dotenv": "^15.0.0",
     "express": "^4.17.2",
+    "joi": "^17.6.0",
     "mongodb": "^4.3.1"
   }
 }
