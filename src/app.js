@@ -3,8 +3,9 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import { v4 as generateToken } from "uuid";
 
-import { userSchema } from "./schemas.js";
+import { userSchema, loginSchema } from "./schemas.js";
 
 dotenv.config();
 
@@ -45,6 +46,42 @@ app.post("/sign-up", async (req, res) => {
     await usersCollection.insertOne(newUser);
 
     res.sendStatus(201);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const login = req.body;
+
+  const validation = loginSchema.validate(login, { abortEarly: false });
+  if (validation.error) {
+    res
+      .status(422)
+      .send(validation.error.details.map((detail) => detail.message));
+    return;
+  }
+
+  try {
+    const user = await db.collection("users").findOne({
+      email: login.email,
+    });
+
+    if (!user) {
+      res.status(404).send("Nenhum usuário com esse email está cadastrado");
+      return;
+    }
+
+    if (!bcrypt.compareSync(login.password, user.passwordHash)) {
+      res.status(401).send("Email e senha não conferem!");
+      return;
+    }
+
+    const token = generateToken();
+    await db.collection("sessions").insertOne({ userId: user._id, token });
+
+    res.status(200).send(token);
   } catch (error) {
     console.error(error);
     res.status(500).send("Houve um erro interno no servidor");
