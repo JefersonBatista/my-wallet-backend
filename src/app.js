@@ -93,22 +93,59 @@ app.post("/logout", async (req, res) => {
   const token = authorization?.replace("Bearer ", "");
 
   if (!token) {
-    res.status(422).send("Nenhum token de autenticação foi enviado!");
+    res.status(401).send("Você não está autorizado!");
     return;
   }
 
-  const sessionsCollection = db.collection("sessions");
+  try {
+    const sessionsCollection = db.collection("sessions");
 
-  const session = await sessionsCollection.findOne({ token });
+    const session = await sessionsCollection.findOne({ token });
 
-  if (!session) {
-    res.status(404).send("Nenhuma sessão com esse token foi encontrada");
+    if (!session) {
+      res.status(401).send("Você não está autorizado!");
+      return;
+    }
+
+    await sessionsCollection.deleteOne({ _id: session._id });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+});
+
+app.get("/transactions", async (req, res) => {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    res.status(401).send("Você não está autorizado!");
     return;
   }
 
-  await sessionsCollection.deleteOne({ _id: session._id });
+  try {
+    const sessionsCollection = db.collection("sessions");
 
-  res.sendStatus(200);
+    const session = await sessionsCollection.findOne({ token });
+
+    if (!session) {
+      res.status(401).send("Você não está autorizado!");
+      return;
+    }
+
+    const transactionsCollection = db.collection("transactions");
+
+    const transactions = await transactionsCollection
+      .find({ userId: session.userId })
+      .toArray();
+
+    res.status(200).send(transactions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
 });
 
 app.listen(5000, () => {
