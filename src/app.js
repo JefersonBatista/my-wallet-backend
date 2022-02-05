@@ -136,11 +136,17 @@ app.get("/transactions", async (req, res) => {
       return;
     }
 
+    const userId = session.userId;
+
+    const usersCollection = db.collection("users");
+
+    const user = await usersCollection.findOne({ _id: userId });
+
     const transactionsCollection = db.collection("transactions");
 
-    const transactions = await transactionsCollection
-      .find({ userId: session.userId })
-      .toArray();
+    const transactions = {};
+    transactions.user = user.name;
+    transactions.list = await transactionsCollection.find({ userId }).toArray();
 
     res.status(200).send(transactions);
   } catch (error) {
@@ -180,7 +186,9 @@ app.post("/transactions", async (req, res) => {
       return;
     }
 
-    newTransaction.userId = session.userId;
+    const userId = session.userId;
+
+    newTransaction.userId = userId;
     newTransaction.date = dayjs().format("DD/MM");
 
     // To facilitate sorting on the front-end
