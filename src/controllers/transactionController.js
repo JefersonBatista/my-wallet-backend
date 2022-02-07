@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { ObjectId } from "mongodb";
 
 import db from "../db.js";
 
@@ -40,6 +41,21 @@ export async function registerTransaction(req, res) {
     await transactionsCollection.insertOne(newTransaction);
 
     res.sendStatus(201);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}
+
+export async function deleteTransaction(req, res) {
+  const { transactionId } = req.params;
+
+  try {
+    await db
+      .collection("transactions")
+      .deleteOne({ _id: new ObjectId(transactionId) });
+
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).send("Houve um erro interno no servidor");
