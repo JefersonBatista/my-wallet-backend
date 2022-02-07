@@ -3,18 +3,8 @@ import { v4 as generateToken } from "uuid";
 
 import db from "../db.js";
 
-import { userSchema, loginSchema } from "../schemas/index.js";
-
 export async function signUp(req, res) {
   const newUser = req.body;
-
-  const validation = userSchema.validate(newUser, { abortEarly: false });
-  if (validation.error) {
-    res
-      .status(422)
-      .send(validation.error.details.map((detail) => detail.message));
-    return;
-  }
 
   newUser.passwordHash = bcrypt.hashSync(newUser.password, 10);
   delete newUser.password;
@@ -42,14 +32,6 @@ export async function signUp(req, res) {
 
 export async function login(req, res) {
   const login = req.body;
-
-  const validation = loginSchema.validate(login, { abortEarly: false });
-  if (validation.error) {
-    res
-      .status(422)
-      .send(validation.error.details.map((detail) => detail.message));
-    return;
-  }
 
   try {
     const user = await db.collection("users").findOne({
