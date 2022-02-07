@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 
 import db from "../db.js";
 
-export async function getTransactions(req, res) {
+export async function getTransactions(_, res) {
   try {
     const userId = res.locals.userId;
 
@@ -48,12 +48,63 @@ export async function registerTransaction(req, res) {
 }
 
 export async function deleteTransaction(req, res) {
-  const { transactionId } = req.params;
+  const { id } = req.params;
 
   try {
+    const userId = res.locals.userId;
+
+    const transaction = await db
+      .collection("transactions")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!transaction) {
+      res.status(404).send("Transação não encontrada");
+      return;
+    }
+
+    if (transaction.userId.toString() !== userId.toString()) {
+      res
+        .status(403)
+        .send("Você não pode deletar uma transação que não é do seu usuário!");
+      return;
+    }
+
+    await db.collection("transactions").deleteOne({ _id: new ObjectId(id) });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}
+
+export async function updateTransaction(req, res) {
+  const { id } = req.params;
+
+  const updatedTransaction = req.body;
+
+  try {
+    const userId = res.locals.userId;
+
+    const transaction = await db
+      .collection("transactions")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!transaction) {
+      res.status(404).send("Transação não encontrada");
+      return;
+    }
+
+    if (transaction.userId.toString() !== userId.toString()) {
+      res
+        .status(403)
+        .send("Você não pode editar uma transação que não é do seu usuário!");
+      return;
+    }
+
     await db
       .collection("transactions")
-      .deleteOne({ _id: new ObjectId(transactionId) });
+      .updateOne({ _id: new ObjectId(id) }, { $set: updatedTransaction });
 
     res.sendStatus(200);
   } catch (error) {

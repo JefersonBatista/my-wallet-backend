@@ -4,6 +4,7 @@ import {
   getTransactions,
   registerTransaction,
   deleteTransaction,
+  updateTransaction,
 } from "../controllers/transactionController.js";
 import schemaValidation from "../middlewares/schemaValidationMiddleware.js";
 import { transactionSchema } from "../schemas/index.js";
@@ -22,9 +23,16 @@ transactionsRouter.post(
 );
 
 transactionsRouter.delete(
-  "/transactions/:transactionId",
+  "/transactions/:id",
   authValidation,
   deleteTransaction
+);
+
+transactionsRouter.put(
+  "/transactions/:id",
+  schemaValidation(transactionSchema),
+  authValidation,
+  updateTransaction
 );
 
 export default transactionsRouter;
