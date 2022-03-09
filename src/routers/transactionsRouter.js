@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   getTransactions,
+  getTransactionById,
   registerTransaction,
   deleteTransaction,
   updateTransaction,
@@ -13,6 +14,8 @@ import authValidation from "../middlewares/authValidationMiddleware.js";
 const transactionsRouter = Router();
 
 transactionsRouter.get("/transactions", authValidation, getTransactions);
+
+transactionsRouter.get("/transactions/:id", authValidation, getTransactionById);
 
 // Running schemaValidation before authValidation
 transactionsRouter.post(

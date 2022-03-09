@@ -24,6 +24,35 @@ export async function getTransactions(_, res) {
   }
 }
 
+export async function getTransactionById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const userId = res.locals.userId;
+
+    const transaction = await db
+      .collection("transactions")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!transaction) {
+      res.status(404).send("Transação não encontrada");
+      return;
+    }
+
+    if (transaction.userId.toString() !== userId.toString()) {
+      res
+        .status(403)
+        .send("Você não pode obter uma transação que não é do seu usuário!");
+      return;
+    }
+
+    res.status(200).send(transaction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}
+
 export async function registerTransaction(req, res) {
   const newTransaction = req.body;
 
