@@ -14,7 +14,7 @@ This app includes:
 
 ## Next Steps
 
-- Start transaction editions with their current data
+- Currently, this project has no next steps
 
 ## Technologies
 
