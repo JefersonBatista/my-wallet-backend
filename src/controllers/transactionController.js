@@ -60,7 +60,6 @@ export async function registerTransaction(req, res) {
     const userId = res.locals.userId;
 
     newTransaction.userId = userId;
-    newTransaction.date = dayjs().format("DD/MM");
 
     // To facilitate sorting on the front-end
     newTransaction.timestamp = Date.now();
