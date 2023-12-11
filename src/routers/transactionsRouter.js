@@ -6,6 +6,7 @@ import {
   registerTransaction,
   deleteTransaction,
   updateTransaction,
+  deleteAllTransactions,
 } from "../controllers/transactionController.js";
 import schemaValidation from "../middlewares/schemaValidationMiddleware.js";
 import { transactionSchema } from "../schemas/index.js";
@@ -23,6 +24,12 @@ transactionsRouter.post(
   schemaValidation(transactionSchema),
   authValidation,
   registerTransaction
+);
+
+transactionsRouter.delete(
+  "/transactions/all",
+  authValidation,
+  deleteAllTransactions
 );
 
 transactionsRouter.delete(

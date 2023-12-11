@@ -106,6 +106,19 @@ export async function deleteTransaction(req, res) {
   }
 }
 
+export async function deleteAllTransactions(_, res) {
+  try {
+    const userId = res.locals.userId;
+
+    await db.collection("transactions").deleteMany({ userId });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}
+
 export async function updateTransaction(req, res) {
   const { id } = req.params;
 
